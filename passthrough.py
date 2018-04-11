@@ -40,6 +40,22 @@ class Passthrough(Operations):
 
     def getattr(self, path, fh=None):
         full_path = self._full_path(path)
+
+        # full_path is../mountSource/current path within mount point
+        # path is current path within mount point, eg "/myfile"
+        if path == "/geiger":
+            st = os.lstat(self._full_path("."))
+            #return {
+            #        'st_atime' : 1523441950,
+            #        'st_ctime' : 1522792099,
+            #        'st_gid' : 2231,
+            #        'st_mode' : 16877,
+            #        'st_mtime' : 1522792099,
+            #        'st_nlink' : 2,
+            #        'st_size' : 4096,
+            #        'st_uid' : 2231
+            #    }
+
         st = os.lstat(full_path)
         return dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime',
                      'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size', 'st_uid'))
@@ -47,7 +63,7 @@ class Passthrough(Operations):
     def readdir(self, path, fh):
         full_path = self._full_path(path)
 
-        dirents = ['.', '..']
+        dirents = ['.', '..', 'geiger']
         if os.path.isdir(full_path):
             dirents.extend(os.listdir(full_path))
         for r in dirents:
