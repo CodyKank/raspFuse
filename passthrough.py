@@ -26,25 +26,31 @@ class Passthrough(Operations):
     # ==================
 
     def access(self, path, mode):
+        
         full_path = self._full_path(path)
+        print "*******Acess Path :{}".format(full_path)
         if not os.access(full_path, mode):
             raise FuseOSError(errno.EACCES)
 
     def chmod(self, path, mode):
+        print("*******Changing The Permissions*********")
         full_path = self._full_path(path)
         return os.chmod(full_path, mode)
 
     def chown(self, path, uid, gid):
+        print("*******Change Owner*********")
         full_path = self._full_path(path)
         return os.chown(full_path, uid, gid)
 
     def getattr(self, path, fh=None):
+        print("*******Get Attributes*********")
         full_path = self._full_path(path)
         st = os.lstat(full_path)
         return dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime',
                      'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size', 'st_uid'))
 
     def readdir(self, path, fh):
+        print("*******Reads Directory*********")
         full_path = self._full_path(path)
 
         dirents = ['.', '..']
@@ -54,6 +60,7 @@ class Passthrough(Operations):
             yield r
 
     def readlink(self, path):
+        print("*******Reads Link*********")
         pathname = os.readlink(self._full_path(path))
         if pathname.startswith("/"):
             # Path name is absolute, sanitize it.
@@ -62,13 +69,16 @@ class Passthrough(Operations):
             return pathname
 
     def mknod(self, path, mode, dev):
+        print("*******Create Device Files*********")
         return os.mknod(self._full_path(path), mode, dev)
 
     def rmdir(self, path):
+        print("*******Remove Directory*********")
         full_path = self._full_path(path)
         return os.rmdir(full_path)
 
     def mkdir(self, path, mode):
+        print("*******Make Directory*********")
         return os.mkdir(self._full_path(path), mode)
 
     def statfs(self, path):
