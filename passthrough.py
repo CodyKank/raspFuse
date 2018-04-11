@@ -25,10 +25,13 @@ class Passthrough(Operations):
     # Filesystem methods
     # ==================
 
-    def access(self, path, mode):
-        
+    def access(self, path, mode):        
         full_path = self._full_path(path)
-        print "*******Acess Path :{}".format(full_path)
+        print "*******Acess Path*******"
+        print full_path
+        print path
+        print self
+        print "***************************"
         if not os.access(full_path, mode):
             raise FuseOSError(errno.EACCES)
 
@@ -43,9 +46,16 @@ class Passthrough(Operations):
         return os.chown(full_path, uid, gid)
 
     def getattr(self, path, fh=None):
-        print("*******Get Attributes*********")
         full_path = self._full_path(path)
+        print "==========GetAttr=========="
+        print full_path
+        print path
+        print self
+        print "==========================="
         st = os.lstat(full_path)
+        print "========st value========="
+        print st
+        print "========================="
         return dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime',
                      'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size', 'st_uid'))
 
