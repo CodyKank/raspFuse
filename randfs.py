@@ -59,7 +59,7 @@ class Passthrough(Operations):
         # full_path is../mountSource/current path within mount point
         # path is current path within mount point, eg "/myfile"
         if path == "/geiger":
-            st = dict(st_mode=(stat.S_IFREG | 0o777 | stat.S_IWUSR),st_size=len(outstr))
+            st = dict(st_mode=(stat.S_IFREG | 0o777 | stat.S_IWUSR),st_size=len(outstr), st_gid=os.getegid(), st_uid=os.getuid())
             st['st_ctime'] = st['st_mtime'] = st['st_atime'] = time()
             return st
         else:
