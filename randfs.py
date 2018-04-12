@@ -59,7 +59,8 @@ class Passthrough(Operations):
         # full_path is../mountSource/current path within mount point
         # path is current path within mount point, eg "/myfile"
         if path == "/geiger":
-            st = dict(st_mode=(stat.S_IFREG | 0o777 | stat.S_IWUSR),st_size=len(outstr), st_gid=os.getegid(), st_uid=os.getuid())
+            st = dict(st_mode=(stat.S_IFREG | 0o777 | stat.S_IWUSR),st_size=len(outstr), st_gid=os.getegid(), st_uid=os.getuid(),
+                    st_nlink=1)
             st['st_ctime'] = st['st_mtime'] = st['st_atime'] = time()
             return st
         else:
@@ -168,17 +169,17 @@ class Passthrough(Operations):
 
     def write(self, path, buf, offset, fh):
         #print "write"
+        geigercpmStr = ""
         if path == "/geiger":
-            geigercpm = ""
             with open("geigercpm") as geigercpmFile:
-                geigercpm = geigercpmFile.readlines()
-            print geigercpm
-        with open('wolfDen.txt') as dmpFile:
-            dmpFile.write(geigercpm)
+                geigercpmStr = geigercpmStr + geigercpmFile.readline()
+            print geigercpmStr
+        with open('wolfDen.txt', 'w') as dmpFile:
+            dmpFile.write(geigercpmStr)
         
         #os.lseek(fh, offset, os.SEEK_SET)
         #return os.write(fh, buf)
-        return 69
+        return os.path.getsize("geigercpm") 
 
     def truncate(self, path, length, fh=None):
         #print "truncate"
