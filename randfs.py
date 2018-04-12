@@ -59,7 +59,7 @@ class Passthrough(Operations):
         # full_path is../mountSource/current path within mount point
         # path is current path within mount point, eg "/myfile"
         if path == "/geiger":
-            st = dict(st_mode=(stat.S_IFREG | 0o444),st_size=len(outstr))
+            st = dict(st_mode=(stat.S_IFREG | 0o777 | stat.S_IWUSR),st_size=len(outstr))
             st['st_ctime'] = st['st_mtime'] = st['st_atime'] = time()
             return st
         else:
@@ -156,6 +156,7 @@ class Passthrough(Operations):
             outstr = "Tried to read geiger\n"
             #st = os.lstat(self._full_path("."))
             randCache = open("geigerRandCache")
+            # To do: add check for the length of file.
             bytes = randCache.read(length)
             #print "bytes: " + bytes
             randCache.close()
@@ -167,8 +168,17 @@ class Passthrough(Operations):
 
     def write(self, path, buf, offset, fh):
         #print "write"
-        os.lseek(fh, offset, os.SEEK_SET)
-        return os.write(fh, buf)
+        if path == "/geiger":
+            geigercpm = ""
+            with open("geigercpm") as geigercpmFile:
+                geigercpm = geigercpmFile.readlines()
+            print geigercpm
+        with open('wolfDen.txt') as dmpFile:
+            dmpFile.write(geigercpm)
+        
+        #os.lseek(fh, offset, os.SEEK_SET)
+        #return os.write(fh, buf)
+        return 69
 
     def truncate(self, path, length, fh=None):
         #print "truncate"
