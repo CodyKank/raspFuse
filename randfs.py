@@ -60,16 +60,18 @@ class RandomFileSystem(Operations):
             #st = dict(st_mode=(stat.S_IFREG | 0o444), st_size=len(outstr))
             curtime = time()
             st = dict(
-                st_mode = (stat.S_IFCHR | 0o777 | stat.S_IWUSR),
+                st_mode = (stat.S_IFREG | 0o777),
+                #st_mode = (stat.S_IFREG | 0o777 | stat.S_IWUSR),
                 #st_mode = (stat.S_IFCHR | 0o777 | stat.S_IWUSR),
-                st_size = 0,
+                st_size = 16384,
+                #st_size = 32,
                 st_gid = folderGroup,
                 st_uid = folderUser,
                 st_nlink = 1,
                 st_ctime = curtime,
                 st_mtime = curtime,
                 st_atime = curtime,
-                st_rdev = os.makedev(1, 8)
+                #st_rdev = os.makedev(1, 8)
             )
             #st = os.lstat("/dev/random")
             #print st
@@ -167,10 +169,29 @@ class RandomFileSystem(Operations):
             print "tried to read geiger"
             #outstr = "Tried to read geiger\n"
             #st = os.lstat(self._full_path("."))
-            randCache = open("geigerRandCache")
-            bytes = randCache.read(length).strip()
+            
+            #randCache = open("geigerRandCache")
+            randCacheFh = os.open("geigerRandCache", os.O_RDONLY)
+            
+            #bytes = randCache.read(length).strip()
+            
+            size = os.lstat("geigerRandCache").st_size
+            print ("cache size:", size)
+            print ("length:", length, "type:", type(length))
+            print ("size - length:", size - length)
+            if length < size:
+                os.lseek(randCacheFh, size - length, os.SEEK_END)
+            bytes = os.read(randCacheFh, length).strip()
             #print "bytes: " + bytes
-            randCache.close()
+            #randCache.close()
+            os.close(randCacheFh)
+            
+            # truncate the bytes read from the end of the file
+            randCacheFh = os.open("geigerRandCache", os.O_WRONLY | os.O_TRUNC)
+            if length < size:
+                os.ftruncate(randCacheFh, size - length)            
+            os.close(randCacheFh)
+
 
             lengthRead = len(bytes)
             lengthExtra = length - lengthRead
