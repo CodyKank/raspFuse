@@ -182,6 +182,7 @@ class Passthrough(Operations):
         # Do nothing, we do not want to truncate since this is our FS
         # This function must be here to allow redirection of output
         # to the FUSE file system.
+        return
 
 
     def flush(self, path, fh):
