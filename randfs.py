@@ -168,22 +168,20 @@ class Passthrough(Operations):
         return os.read(fh, length)
 
     def write(self, path, buf, offset, fh):
-        #print "write"
         geigercpmStr = ""
         if path == "/geiger":
             with open("geigercpm") as geigercpmFile:
                 geigercpmStr = geigercpmStr + geigercpmFile.readline()
             print geigercpmStr
-        with open('wolfDen.txt', 'w') as dmpFile:
+        with open('geigerOut.txt', 'w') as dmpFile:
             dmpFile.write(geigercpmStr)
         
-        #os.lseek(fh, offset, os.SEEK_SET)
-        #return os.write(fh, buf)
         return os.path.getsize("geigercpm") 
 
     def truncate(self, path, length, fh=None):
-        full_path = self._full_path(path)
         # Do nothing, we do not want to truncate since this is our FS
+        # This function must be here to allow redirection of output
+        # to the FUSE file system.
 
 
     def flush(self, path, fh):
