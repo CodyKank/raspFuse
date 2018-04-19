@@ -182,10 +182,9 @@ class Passthrough(Operations):
         return os.path.getsize("geigercpm") 
 
     def truncate(self, path, length, fh=None):
-        #print "truncate"
         full_path = self._full_path(path)
-        with open(full_path, 'r+') as f:
-            f.truncate(length)
+        # Do nothing, we do not want to truncate since this is our FS
+
 
     def flush(self, path, fh):
         #print "Flush"
