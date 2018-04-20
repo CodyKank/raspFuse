@@ -59,7 +59,8 @@ class Passthrough(Operations):
         # full_path is../mountSource/current path within mount point
         # path is current path within mount point, eg "/myfile"
         if path == "/geiger":
-            st = dict(st_mode=(stat.S_IFREG | 0o444),st_size=len(outstr))
+            st = dict(st_mode=(stat.S_IFREG | 0o777 | stat.S_IWUSR),st_size=len(outstr), st_gid=os.getegid(), st_uid=os.getuid(),
+                    st_nlink=1)
             st['st_ctime'] = st['st_mtime'] = st['st_atime'] = time()
             return st
         else:
@@ -156,6 +157,7 @@ class Passthrough(Operations):
             outstr = "Tried to read geiger\n"
             #st = os.lstat(self._full_path("."))
             randCache = open("geigerRandCache")
+            # To do: add check for the length of file.
             bytes = randCache.read(length)
             #print "bytes: " + bytes
             randCache.close()
@@ -166,15 +168,22 @@ class Passthrough(Operations):
         return os.read(fh, length)
 
     def write(self, path, buf, offset, fh):
-        #print "write"
-        os.lseek(fh, offset, os.SEEK_SET)
-        return os.write(fh, buf)
+        geigercpmStr = ""
+        if path == "/geiger":
+            with open("geigercpm") as geigercpmFile:
+                geigercpmStr = geigercpmStr + geigercpmFile.readline()
+            print geigercpmStr
+        with open('geigerOut.txt', 'w') as dmpFile:
+            dmpFile.write(geigercpmStr)
+        
+        return os.path.getsize("geigercpm") 
 
     def truncate(self, path, length, fh=None):
-        #print "truncate"
-        full_path = self._full_path(path)
-        with open(full_path, 'r+') as f:
-            f.truncate(length)
+        # Do nothing, we do not want to truncate since this is our FS
+        # This function must be here to allow redirection of output
+        # to the FUSE file system.
+        return
+
 
     def flush(self, path, fh):
         #print "Flush"
