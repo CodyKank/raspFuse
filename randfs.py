@@ -52,7 +52,6 @@ class RandomFileSystem(Operations):
         # full_path is../mountSource/current path within mount point
         # path is current path within mount point, eg "/myfile"
         if path == "/geiger":
-<<<<<<< HEAD
             #folderStat = os.lstat('.')
             folderUser = os.getegid()
             folderGroup = os.getuid()
@@ -76,11 +75,6 @@ class RandomFileSystem(Operations):
             )
             #st = os.lstat("/dev/random")
             #print st
-=======
-            st = dict(st_mode=(stat.S_IFREG | 0o777 | stat.S_IWUSR),st_size=len(outstr), st_gid=os.getegid(), st_uid=os.getuid(),
-                    st_nlink=1)
-            st['st_ctime'] = st['st_mtime'] = st['st_atime'] = time()
->>>>>>> origin/master
             return st
         else:
             st = os.lstat(full_path)
@@ -175,8 +169,6 @@ class RandomFileSystem(Operations):
             print "tried to read geiger"
             #outstr = "Tried to read geiger\n"
             #st = os.lstat(self._full_path("."))
-<<<<<<< HEAD
-            
             #randCache = open("geigerRandCache")
             randCacheFh = os.open("geigerRandCache", os.O_RDONLY)
             
@@ -189,11 +181,6 @@ class RandomFileSystem(Operations):
             if length < size:
                 os.lseek(randCacheFh, size - length, os.SEEK_END)
             bytes = os.read(randCacheFh, length).strip()
-=======
-            randCache = open("geigerRandCache")
-            # To do: add check for the length of file.
-            bytes = randCache.read(length)
->>>>>>> origin/master
             #print "bytes: " + bytes
             #randCache.close()
             os.close(randCacheFh)
