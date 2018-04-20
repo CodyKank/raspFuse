@@ -52,6 +52,7 @@ class RandomFileSystem(Operations):
         # full_path is../mountSource/current path within mount point
         # path is current path within mount point, eg "/myfile"
         if path == "/geiger":
+<<<<<<< HEAD
             #folderStat = os.lstat('.')
             folderUser = os.getegid()
             folderGroup = os.getuid()
@@ -75,6 +76,11 @@ class RandomFileSystem(Operations):
             )
             #st = os.lstat("/dev/random")
             #print st
+=======
+            st = dict(st_mode=(stat.S_IFREG | 0o777 | stat.S_IWUSR),st_size=len(outstr), st_gid=os.getegid(), st_uid=os.getuid(),
+                    st_nlink=1)
+            st['st_ctime'] = st['st_mtime'] = st['st_atime'] = time()
+>>>>>>> origin/master
             return st
         else:
             st = os.lstat(full_path)
@@ -169,6 +175,7 @@ class RandomFileSystem(Operations):
             print "tried to read geiger"
             #outstr = "Tried to read geiger\n"
             #st = os.lstat(self._full_path("."))
+<<<<<<< HEAD
             
             #randCache = open("geigerRandCache")
             randCacheFh = os.open("geigerRandCache", os.O_RDONLY)
@@ -182,6 +189,11 @@ class RandomFileSystem(Operations):
             if length < size:
                 os.lseek(randCacheFh, size - length, os.SEEK_END)
             bytes = os.read(randCacheFh, length).strip()
+=======
+            randCache = open("geigerRandCache")
+            # To do: add check for the length of file.
+            bytes = randCache.read(length)
+>>>>>>> origin/master
             #print "bytes: " + bytes
             #randCache.close()
             os.close(randCacheFh)
@@ -206,14 +218,29 @@ class RandomFileSystem(Operations):
 
     def write(self, path, buf, offset, fh):
         print "-- write called on " + path
-        os.lseek(fh, offset, os.SEEK_SET)
-        return os.write(fh, buf)
+        #os.lseek(fh, offset, os.SEEK_SET)
+        #return os.write(fh, buf)
+        
+        geigercpmStr = ""
+        if path == "/geiger":
+            with open("geigercpm") as geigercpmFile:
+                geigercpmStr = geigercpmStr + geigercpmFile.readline()
+            print geigercpmStr
+        with open('geigerOut.txt', 'w') as dmpFile:
+            dmpFile.write(geigercpmStr)
+        
+        return os.path.getsize("geigercpm") 
 
     def truncate(self, path, length, fh=None):
         print "-- truncate called on " + path
-        full_path = self._full_path(path)
-        with open(full_path, 'r+') as f:
-            f.truncate(length)
+        #full_path = self._full_path(path)
+        #with open(full_path, 'r+') as f:
+        #    f.truncate(length)
+        
+        #Do nothing, we do not want to truncate since this is our FS
+        # This function must be here to allow redirection of output
+        # to the FUSE file system.
+        return
 
     def flush(self, path, fh):
         print "-- flush called on " + path
