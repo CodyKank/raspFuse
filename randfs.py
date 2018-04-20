@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import with_statement
-from time import time
+from time import time, localtime, strftime
 
 import os
 import sys
@@ -168,10 +168,11 @@ class Passthrough(Operations):
         return os.read(fh, length)
 
     def write(self, path, buf, offset, fh):
-        geigercpmStr = ""
+        geigercpmStr = "Counts per minute at " + strftime("%H:%M:%S", localtime(time())) + " was "
         if path == "/geiger":
             with open("geigercpm") as geigercpmFile:
-                geigercpmStr = geigercpmStr + geigercpmFile.readline()
+                geigercpmStr += "{0:.2f}".format(float(geigercpmFile.readline())) + "\n"
+
             print geigercpmStr
         with open('geigerOut.txt', 'w') as dmpFile:
             dmpFile.write(geigercpmStr)
