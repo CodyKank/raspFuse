@@ -174,6 +174,8 @@ class RandomFileSystem(Operations):
             lengthRead = len(bytes)
             lengthExtra = length - lengthRead
             if lengthExtra > 0:
+                print ("tried to read more bytes than cached")
+                print ("supplementing with system random")
                 extra = os.urandom(lengthExtra)
                 bytes += extra
             return (bytes)
