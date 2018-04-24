@@ -52,35 +52,22 @@ class RandomFileSystem(Operations):
         # full_path is../mountSource/current path within mount point
         # path is current path within mount point, eg "/myfile"
         if path == "/geiger":
-            #folderStat = os.lstat('.')
             folderUser = os.getegid()
             folderGroup = os.getuid()
-            #folderUser = folderStat[stat.ST_UID]
-            #folderGroup = folderStat[stat.ST_GID]
-            #st = dict(st_mode=(stat.S_IFREG | 0o444), st_size=len(outstr))
             curtime = time()
             st = dict(
                 st_mode = (stat.S_IFREG | 0o777),
-                #st_mode = (stat.S_IFREG | 0o777 | stat.S_IWUSR),
-                #st_mode = (stat.S_IFCHR | 0o777 | stat.S_IWUSR),
                 st_size = 16384,
-                #st_size = 32,
                 st_gid = folderGroup,
                 st_uid = folderUser,
                 st_nlink = 1,
                 st_ctime = curtime,
                 st_mtime = curtime,
                 st_atime = curtime,
-                #st_rdev = os.makedev(1, 8)
             )
-            #st = os.lstat("/dev/random")
-            #print st
             return st
         else:
             st = os.lstat(full_path)
-        #print "========st value========="
-        #print st
-        #print "========================="
         return dict((key, getattr(st, key)) for key in ('st_atime', 'st_ctime',
                      'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size', 'st_uid'))
 
@@ -153,9 +140,7 @@ class RandomFileSystem(Operations):
             print "Geiger open attempted"
             return 5
         full_path = self._full_path(path)
-        #return os.open(full_path, flags)
         f = os.open(full_path, flags)
-        #print f
         return f
     
     def create(self, path, mode, fi=None):
@@ -167,12 +152,8 @@ class RandomFileSystem(Operations):
         print "-- read called on " + path
         if path == "/geiger":
             print "tried to read geiger"
-            #outstr = "Tried to read geiger\n"
-            #st = os.lstat(self._full_path("."))
-            #randCache = open("geigerRandCache")
-            randCacheFh = os.open("geigerRandCache", os.O_RDONLY)
             
-            #bytes = randCache.read(length).strip()
+            randCacheFh = os.open("geigerRandCache", os.O_RDONLY)
             
             size = os.lstat("geigerRandCache").st_size
             print ("cache size:", size)
@@ -181,8 +162,6 @@ class RandomFileSystem(Operations):
             if length < size:
                 os.lseek(randCacheFh, size - length, os.SEEK_END)
             bytes = os.read(randCacheFh, length).strip()
-            #print "bytes: " + bytes
-            #randCache.close()
             os.close(randCacheFh)
             
             # truncate the bytes read from the end of the file
@@ -197,17 +176,14 @@ class RandomFileSystem(Operations):
             if lengthExtra > 0:
                 extra = os.urandom(lengthExtra)
                 bytes += extra
-            #return (outstr.encode('utf-8'))
             return (bytes)
         
         os.lseek(fh, offset, os.SEEK_SET)
         return os.read(fh, length)
 
     def write(self, path, buf, offset, fh):
-        geigercpmStr = "Counts per minute at " + strftime("%H:%M:%S", localtime(time())) + " was "
         print "-- write called on " + path
-        #os.lseek(fh, offset, os.SEEK_SET)
-        #return os.write(fh, buf)
+        geigercpmStr = "Counts per minute at " + strftime("%H:%M:%S", localtime(time())) + " was "
         if path == "/geiger":
             with open("geigercpm") as geigercpmFile:
                 geigercpmStr += "{0:.2f}".format(float(geigercpmFile.readline())) + "\n"

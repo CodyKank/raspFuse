@@ -19,7 +19,6 @@ def mycb(x,y,z):
         cpmfile = open("geigercpm","w+")
         cpmfile.write(str(cpm))
         cpmfile.close()
-        #t0 = t1
         if len(runningCpm) >= 30:
             runningCpm.pop(0)
         print ("counts per minute:", cpm)
@@ -37,9 +36,7 @@ def mycb(x,y,z):
     print len(bitarray)
     if (len(bitarray) == 8):
         bitpackedArray = np.packbits(bitarray)
-        # This needs to change to geigerRandCache
         fo = open("geigerRandCache","ab+")
-        #fo.write(bitpackedArray)
         fo.write((bitpackedArray))
         fo.flush()
         fo.close()
