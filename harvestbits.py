@@ -19,7 +19,7 @@ def mycb(x,y,z):
         #t1 = timeStamps[-1]
         #runningCpm.append(60 / (t1 - t0))
         #cpm = sum(runningCpm) / float(len(runningCpm))
-        #cpmfile = open("geigercpm","a+")
+        #cpmfile = open("geigercpm","w+")
         #cpmfile.write("running: " + str(cpm) + "\n")
         #cpmfile.close()
         #if len(runningCpm) >= 30:
@@ -30,7 +30,7 @@ def mycb(x,y,z):
     if len(cpmStamps) >= 2:
         intervalMinutes = (cpmStamps[-1] - cpmStamps[0]) / 60
         intervalCpm = float(len(cpmStamps)) / intervalMinutes
-        cpmfile = open("geigercpm","a+")
+        cpmfile = open("geigercpm","w+")
         cpmfile.write("interval: " + str(intervalCpm) + "\n")
         cpmfile.close()
         if len(cpmStamps) >= 30:
