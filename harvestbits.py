@@ -2,26 +2,40 @@ import time,pigpio
 import numpy as np
 
 timeStamps = []
-runningCpm = []
+#runningCpm = []
+cpmStamps = []
 bitarray = []
 
 def mycb(x,y,z):
     t = time.time()
 
     timeStamps.append(t)
+    cpmStamps.append(t)
 
     # when we receive a new timestamp, update our counts per minute
-    if len(timeStamps) >= 2:
-        t0 = timeStamps[-2]
-        t1 = timeStamps[-1]
-        runningCpm.append(60 / (t1 - t0))
-        cpm = sum(runningCpm) / float(len(runningCpm))
-        cpmfile = open("geigercpm","w+")
-        cpmfile.write(str(cpm))
+    # this method is deprecated in favor of the method below
+    #if len(timeStamps) >= 2:
+        #t0 = timeStamps[-2]
+        #t1 = timeStamps[-1]
+        #runningCpm.append(60 / (t1 - t0))
+        #cpm = sum(runningCpm) / float(len(runningCpm))
+        #cpmfile = open("geigercpm","a+")
+        #cpmfile.write("running: " + str(cpm) + "\n")
+        #cpmfile.close()
+        #if len(runningCpm) >= 30:
+        #    runningCpm.pop(0)
+        #print ("running average counts per minute:", cpm)
+
+    # when we receive a new timestamp, update our counts per minute
+    if len(cpmStamps) >= 2:
+        intervalMinutes = (cpmStamps[-1] - cpmStamps[0]) / 60
+        intervalCpm = float(len(cpmStamps)) / intervalMinutes
+        cpmfile = open("geigercpm","a+")
+        cpmfile.write("interval: " + str(intervalCpm) + "\n")
         cpmfile.close()
-        if len(runningCpm) >= 30:
-            runningCpm.pop(0)
-        print ("counts per minute:", cpm)
+        if len(cpmStamps) >= 30:
+            cpmStamps.pop(0)
+        print ("interval average counts per minute:", intervalCpm)
 
     # Keeping track of 3 timestamps, once we have three compare for a bit
     if ( len(timeStamps) == 3):
